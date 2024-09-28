@@ -1,9 +1,8 @@
 package internal
 
 import (
+	"flag"
 	"fmt"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/fiorix/go-readline"
 	"os"
 	"os/signal"
 	"strings"
@@ -11,10 +10,16 @@ import (
 	"uni_shell/internal/commands"
 	"uni_shell/internal/commands/std"
 	"uni_shell/internal/history"
+
+	"github.com/charmbracelet/lipgloss"
+	"github.com/fiorix/go-readline"
 )
 
-func cleanup() {
-	std.PlayShutdownSound()
+func cleanup(playSound bool) {
+	fmt.Println("running cleanup...")
+	if playSound {
+		std.PlayShutdownSound()
+	}
 	err := history.SaveHistoryFile()
 	if err != nil {
 		fmt.Println("Unable to write to history file: ", err)
@@ -22,10 +27,13 @@ func cleanup() {
 }
 
 func RunShell() {
-	var highlightStyle = lipgloss.NewStyle().
+	// play sound flag parsing
+	playSound := flag.Bool("silent", false, "Play startup/shutdown sound")
+
+	highlightStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("#7D56F4"))
-	var errStyle = lipgloss.NewStyle().
+	errStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("9"))
 
@@ -33,23 +41,26 @@ func RunShell() {
 	sighup := false
 	stdPrompt := highlightStyle.Render("rush> ")
 
-	ch := make(chan os.Signal)
+	sigs := make(chan os.Signal, 5)
+	signal.Notify(sigs, os.Interrupt, syscall.SIGHUP, syscall.SIGINT, syscall.SIGKILL)
 	go func() {
-		for s := range ch {
+		for s := range sigs {
 			if s == syscall.SIGHUP {
 				sighup = true
+				go std.PlayBootSound()
 				return
 			}
 
-			cleanup()
+			cleanup(*playSound)
 
 			// interrupt signal received
 			os.Exit(0)
 		}
 	}()
-	signal.Notify(ch, os.Interrupt, syscall.SIGHUP, syscall.SIGINT, syscall.SIGKILL)
 
-	go std.PlayBootSound()
+	if *playSound {
+		go std.PlayBootSound()
+	}
 
 	var prevResult *commands.CmdResult = nil
 	for {
@@ -64,8 +75,10 @@ func RunShell() {
 
 		switch {
 		case input == nil:
-			cleanup()
-			os.Exit(0)
+			if !sighup {
+				cleanup(*playSound)
+				os.Exit(0)
+			}
 		case *input != "": // Ignore blank lines
 			input := *input
 			input = strings.TrimSpace(input)
@@ -95,7 +108,7 @@ func RunShell() {
 			}
 
 			if result.Flags.Exit {
-				cleanup()
+				cleanup(*playSound)
 				os.Exit(result.ExitCode)
 			}
 

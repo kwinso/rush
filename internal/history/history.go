@@ -2,9 +2,10 @@ package history
 
 import (
 	"fmt"
-	"github.com/fiorix/go-readline"
 	"os"
 	"path"
+
+	"github.com/fiorix/go-readline"
 )
 
 var histPath string

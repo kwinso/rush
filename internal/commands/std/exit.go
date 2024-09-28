@@ -4,11 +4,12 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
-	"github.com/hajimehoshi/go-mp3"
-	"github.com/hajimehoshi/oto/v2"
 	"strconv"
 	"time"
 	"uni_shell/internal/commands"
+
+	"github.com/hajimehoshi/go-mp3"
+	"github.com/hajimehoshi/oto/v2"
 )
 
 //go:embed assets/windows_shutdown_sound.mp3
