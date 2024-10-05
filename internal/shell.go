@@ -66,7 +66,6 @@ func RunShell() {
 		panic(err)
 	}
 	l, err := readline.NewEx(&readline.Config{
-		Prompt:            "\033[31m\033[0m ",
 		HistoryFile:       filepath.Join(usr.HomeDir, ".rush_history"),
 		InterruptPrompt:   "^C",
 		EOFPrompt:         ":q",

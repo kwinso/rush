@@ -12,6 +12,8 @@ var stdCommands = map[string]commands.CmdHandler{
 	":cd":   HandleCdCommand,
 	":part": HandleShowPartitionsCommand,
 	":omg":  PlayOmg,
+	":mem":  HandleMemCommand,
+	":maps": HandleMapsCommand,
 }
 
 func RunStdCmd(cmd commands.Cmd) *commands.CmdResult {
