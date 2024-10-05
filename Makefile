@@ -4,10 +4,10 @@ TARGET=rush
 all: $(TARGET) run
 
 $(TARGET): $(SRC)
-	go build -o $(TARGET) $(SRC)
+	go build -o build/$(TARGET) $(SRC)
 
 run: $(TARGET)
-	./$(TARGET)
+	./build/$(TARGET)
 
 clean:
-	rm -rf ./$(TARGET)
+	rm -rf ./build/$(TARGET)
