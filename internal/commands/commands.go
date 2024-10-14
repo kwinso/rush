@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"strings"
+	"regexp"
 )
 
 type Cmd struct {
@@ -24,7 +24,19 @@ type CmdResult struct {
 type CmdHandler = func(cmd Cmd) CmdResult
 
 func ParseCommandFromString(s string) Cmd {
-	args := strings.Split(s, " ")
+	re := regexp.MustCompile(`["|']([^"']+)["|']|(\S+)`)
+	matches := re.FindAllStringSubmatch(s, -1)
+
+	var args []string
+	for _, match := range matches {
+		if match[1] != "" {
+			// If the first capturing group (quoted string) is not empty, use it
+			args = append(args, match[1])
+		} else if match[2] != "" {
+			// If the second capturing group (unquoted word) is not empty, use it
+			args = append(args, match[2])
+		}
+	}
 
 	return Cmd{
 		Name:  args[0],

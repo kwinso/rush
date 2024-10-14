@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/signal"
 	"os/user"
@@ -13,15 +12,31 @@ import (
 	"syscall"
 	"uni_shell/internal/commands"
 	"uni_shell/internal/commands/std"
+	"uni_shell/internal/cronfs"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/log"
 	"github.com/chzyer/readline"
 )
 
 // TODO: This cleanup function does not guarantee that readlinen will exist safely
 func cleanup(playSound bool) {
+	log.Debug("Cleaning up...")
 	if playSound {
 		std.PlayShutdownSound()
+	}
+
+	manager, err := cronfs.GetCronFSManager()
+	if err != nil {
+		fmt.Println("Failed to cleanup cronfs:", err)
+	}
+
+	if manager.IsMounted() {
+		log.Debug("Found cronfs mounted, unmounting...")
+		err = manager.Unmount()
+		if err != nil {
+			fmt.Println("Failed to cleanup cronfs:", err)
+		}
 	}
 }
 
@@ -90,8 +105,13 @@ func RunShell() {
 	go handleConfigReload(l)
 
 	// play sound flag parsing
-	bootSound := flag.Bool("silent", false, "Play startup/shutdown sound")
-	if *bootSound {
+	silent := flag.Bool("silent", false, "Do not play any sounds")
+
+	fmt.Println("Rush command line arguments:")
+	flag.PrintDefaults()
+
+	flag.Parse()
+	if !*silent {
 		go std.PlayBootSound()
 	}
 
@@ -144,16 +164,17 @@ func RunShell() {
 			}
 		}
 
-		output := result.Output
 		if result.Output != "" {
-			fmt.Println(output)
+			fmt.Println(result.Output)
 		}
 
 		if result.Flags.Exit {
-			cleanup(*bootSound)
+			cleanup(!*silent)
 			os.Exit(result.ExitCode)
 		}
 
 		prevResult = result
 	}
+
+	cleanup(!*silent)
 }

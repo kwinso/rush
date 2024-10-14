@@ -5,15 +5,17 @@ import (
 )
 
 var stdCommands = map[string]commands.CmdHandler{
-	":e":    HandleEnvCommand,
-	":?":    HandleAboutCommand,
-	":q":    HandleExitCommand,
-	":noop": HandleNoopCommand,
-	":cd":   HandleCdCommand,
-	":part": HandleShowPartitionsCommand,
-	":omg":  PlayOmg,
-	":mem":  HandleMemCommand,
-	":maps": HandleMapsCommand,
+	":e":           HandleEnvCommand,
+	":?":           HandleAboutCommand,
+	":q":           HandleExitCommand,
+	":noop":        HandleNoopCommand,
+	":cd":          HandleCdCommand,
+	":part":        HandleShowPartitionsCommand,
+	":omg":         PlayOmg,
+	":mem":         HandleMemCommand,
+	":maps":        HandleMapsCommand,
+	":mountcron":   HandleMountCronCommand,
+	":unmountcron": HandleUnmountCronCommand,
 }
 
 func RunStdCmd(cmd commands.Cmd) *commands.CmdResult {
