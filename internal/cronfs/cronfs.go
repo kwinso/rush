@@ -1,6 +1,8 @@
 package cronfs
 
 import (
+	"fmt"
+
 	"github.com/winfsp/cgofuse/fuse"
 )
 
@@ -62,6 +64,7 @@ func (self *cronFS) Read(path string, buff []byte, ofst int64, fh uint64) (n int
 	if endofst < ofst {
 		return 0
 	}
+	fmt.Println(contents[ofst:endofst])
 	n = copy(buff, contents[ofst:endofst-1])
 	return
 }

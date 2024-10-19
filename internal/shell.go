@@ -69,6 +69,11 @@ func handleConfigReload(l *readline.Instance) {
 }
 
 func RunShell() {
+	isDebug := os.Getenv("DEBUG") == "1"
+	if isDebug {
+		log.SetLevel(log.DebugLevel)
+	}
+
 	highlightStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("#7D56F4"))
@@ -116,6 +121,7 @@ func RunShell() {
 	}
 
 	var prevResult *commands.CmdResult = nil
+	log.Debug("Shell started successfully")
 	for {
 		l.SetPrompt(buildPrompt(
 			usr,

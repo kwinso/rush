@@ -39,8 +39,8 @@ func RunFromPath(cmd Cmd) *CmdResult {
 func runCommand(path string, args []string) CmdResult {
 	cmd := exec.Command(path, args...)
 
-	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 
 	if err := cmd.Start(); err != nil {
@@ -61,10 +61,8 @@ func runCommand(path string, args []string) CmdResult {
 		code = 1
 	}
 
-	out, _ := cmd.CombinedOutput()
-
 	return CmdResult{
 		ExitCode: code,
-		Output:   string(out),
+		Output:   "",
 	}
 }
