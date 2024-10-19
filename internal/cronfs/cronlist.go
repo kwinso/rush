@@ -2,10 +2,11 @@ package cronfs
 
 import (
 	"bytes"
-	"log"
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/charmbracelet/log"
 )
 
 type cronWatcher struct {
@@ -20,6 +21,7 @@ func NewCronWatcher() *cronWatcher {
 }
 
 func (cw *cronWatcher) Watch() {
+	log.Debug("Starting cronwatcher")
 	ticker := time.NewTicker(2 * time.Second)
 	cw.quitChan = make(chan struct{})
 
@@ -37,6 +39,7 @@ func (cw *cronWatcher) Watch() {
 }
 
 func (cw *cronWatcher) StopWatching() {
+	log.Debug("Stopping cronwatcher")
 	close(cw.quitChan)
 }
 

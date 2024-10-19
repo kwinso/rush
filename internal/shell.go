@@ -62,7 +62,6 @@ func handleConfigReload(l *readline.Instance) {
 			if s == syscall.SIGHUP {
 				fmt.Println("\nrush configuration reloaded...")
 				l.Refresh()
-				return
 			}
 		}
 	}()
@@ -86,26 +85,16 @@ func RunShell() {
 		panic(err)
 	}
 	l, err := readline.NewEx(&readline.Config{
-		HistoryFile:       filepath.Join(usr.HomeDir, ".rush_history"),
-		InterruptPrompt:   "^C",
-		EOFPrompt:         ":q",
-		HistorySearchFold: true,
-		VimMode:           true,
+		HistoryFile:     filepath.Join(usr.HomeDir, ".rush_history"),
+		InterruptPrompt: "^C",
+		EOFPrompt:       ":q",
+		VimMode:         true,
 	})
 	if err != nil {
 		panic(err)
 	}
 	defer l.Close()
 	l.CaptureExitSignal()
-
-	setPasswordCfg := l.GenPasswordConfig()
-	setPasswordCfg.SetListener(func(line []rune, pos int, key rune) (newLine []rune, newPos int, ok bool) {
-		l.SetPrompt(fmt.Sprintf("Enter password(%v): ", len(line)))
-		l.Refresh()
-		return nil, 0, false
-	})
-
-	log.SetOutput(l.Stderr())
 
 	go handleConfigReload(l)
 
@@ -175,6 +164,7 @@ func RunShell() {
 		}
 
 		if result.Flags.Exit {
+			log.Debug("Command required exit, leaving shell")
 			cleanup(!*silent)
 			os.Exit(result.ExitCode)
 		}
